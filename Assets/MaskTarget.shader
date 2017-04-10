@@ -9,7 +9,7 @@ Shader "Custom/MaskTarget" {
 	}
 
 		SubShader{
-		Tags{ "RenderType" = "Transparent" "IgnoreProjector"="True" "Queue" = "Transparent+2" }
+		Tags{ "RenderType" = "Transparent" "IgnoreProjector"="True" "Queue" = "Transparent+11" }
 
 		LOD 200
 
@@ -48,7 +48,7 @@ Shader "Custom/MaskTarget" {
 
 		Pass{
 			Stencil{
-				Ref 2
+				Ref 10
 				Comp Equal
 				ZFail IncrSat
 			}
@@ -73,7 +73,7 @@ Shader "Custom/MaskTarget" {
 		Pass{
 			Stencil
 			{
-				Ref 3
+				Ref 11
 				Comp Equal
 				ZFail IncrSat
 			}
@@ -96,7 +96,7 @@ Shader "Custom/MaskTarget" {
 		Pass{
 			Stencil
 			{
-				Ref 2
+				Ref 10
 				Comp Equal
 				ZFail DecrSat
 			}

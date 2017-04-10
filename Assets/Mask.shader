@@ -8,7 +8,7 @@ Shader "Custom/Mask" {
 	}
 
 	SubShader{
-		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+1" }
+		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+10" }
 
 		LOD 200
 
@@ -44,7 +44,7 @@ Shader "Custom/Mask" {
 
 			Stencil
 			{
-				Ref 2
+				Ref 10
 				Comp Always 
 				Pass Replace 
 			}
@@ -68,6 +68,6 @@ Shader "Custom/Mask" {
 
 			
 	}
-		//ダメだったとき用
+		
 		FallBack "Diffuse"
 }

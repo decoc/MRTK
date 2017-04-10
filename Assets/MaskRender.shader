@@ -8,7 +8,7 @@ Shader "Custom/MaskRender" {
 	}
 		SubShader
 	{
-		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+3" }
+		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+12" }
 
 		LOD 200
 
@@ -68,7 +68,7 @@ Shader "Custom/MaskRender" {
 		//Stencil値12 オブジェクトの背面部分・断面
 		Stencil
 		{
-			Ref 4
+			Ref 12
 			Comp Equal
 		}
 
@@ -111,7 +111,7 @@ Shader "Custom/MaskRender" {
 	{
 		Stencil
 		{
-			Ref 1
+			Ref 9
 			Comp Equal
 			Pass Keep
 		}
