@@ -3,10 +3,10 @@
 Shader "Custom/StencilViewer" {
 
 	Properties{
-		_Color0("Color0", Color) = (1,0,0)
-		_Color1("Color1", Color) = (0,1,0)
-		_Color2("Color2", Color) = (0,0,1)
-		_Color3("Color3", Color) = (0,0,1)
+		_Color0("Ref9", Color) = (1,0,0)
+		_Color1("Ref10", Color) = (0,1,0)
+		_Color2("Ref11", Color) = (0,0,1)
+		_Color3("Ref12", Color) = (0,0,1)
 	}
 
 	SubShader {
@@ -37,7 +37,7 @@ Shader "Custom/StencilViewer" {
 
 						Stencil
 					{
-						Ref 1
+						Ref 9
 						Comp Equal
 						Pass Keep
 					}
@@ -47,10 +47,10 @@ Shader "Custom/StencilViewer" {
 						#pragma fragment frag
 						#pragma target 3.0
 
-						fixed4 _Color3;
+						fixed4 _Color0;
 
 					half4 frag(v2f i) : COLOR{
-						return _Color3;
+						return _Color0;
 					}
 
 						ENDCG
@@ -63,33 +63,7 @@ Shader "Custom/StencilViewer" {
 
 			Stencil
 			{
-				Ref 2
-				Comp Equal
-				Pass Keep
-			}
-
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#pragma target 3.0
-
-			fixed4 _Color0;
-
-			half4 frag(v2f i): COLOR{
-					return _Color0;
-				}
-
-			ENDCG
-		}
-
-		Pass
-		{
-			ZWrite Off
-			ZTest Always
-
-			Stencil
-			{
-				Ref 3
+				Ref 10
 				Comp Equal
 				Pass Keep
 			}
@@ -115,7 +89,7 @@ Shader "Custom/StencilViewer" {
 
 			Stencil
 			{
-				Ref 4
+				Ref 11
 				Comp Equal
 				Pass Keep
 			}
@@ -129,6 +103,32 @@ Shader "Custom/StencilViewer" {
 
 			half4 frag(v2f i): COLOR{
 					return _Color2;
+				}
+
+			ENDCG
+		}
+
+		Pass
+		{
+			ZWrite Off
+			ZTest Always
+
+			Stencil
+			{
+				Ref 12
+				Comp Equal
+				Pass Keep
+			}
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma target 3.0
+
+			fixed4 _Color3;
+
+			half4 frag(v2f i): COLOR{
+					return _Color3;
 				}
 
 			ENDCG
