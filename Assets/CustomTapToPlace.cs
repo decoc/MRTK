@@ -1,4 +1,4 @@
-﻿// Licensed under the MIT License. See LICENSE in the project root for license information.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,8 +29,14 @@ namespace HoloToolkit.Unity.InputModule
         [Tooltip("設置するオブジェクトの中心位置を設定します。")]
         public PlaceAlinement placeAlinement = PlaceAlinement.Middle;
 
+        [Tooltip("これをtrueに設定すると、空間マッピング以外の場所にもオブジェクトを設置できます。")]
+        public bool IsAnyWherePlace = true;
+
         [Tooltip("設置中のカメラからのオブジェクトの距離")]
         public float DefaultGazeDistance = 2.0f;
+
+        [Tooltip("WorldAnchorとして用いる")]
+        public bool UseAsWorldAnchor = false;
 
         [Tooltip("WorldAnchorStoreのキー名としてアンカーのフレンドリ名を指定する")]
         public string SavedAnchorFriendlyName = "SavedAnchorFriendlyName";
@@ -42,9 +48,9 @@ namespace HoloToolkit.Unity.InputModule
         public GameObject ParentGameObjectToPlace;
 
         [Tooltip("オブジェクトの設置可能回数を1回に限定する")]
-        public  bool OneShotMode = false;
+        public bool OneShotMode = false;
         private bool IsPlaced = false;
-        
+
         [Tooltip("これをtrueに設定すると、オブジェクトをタップする必要なく、オブジェクトを移動してシーンに配置することができます。すぐにオブジェクトを配置する場合に便利です。")]
         public bool IsBeingPlaced;
 
@@ -100,10 +106,11 @@ namespace HoloToolkit.Unity.InputModule
             // SpatialMappingを用いている場合衝突をチェックする。なければGaze位置を用いる。
             RaycastHit hitInfo;
 
-            Vector3    placementPosition;
+            Vector3 placementPosition;
             Quaternion placementRotation;
 
             if (SpatialMappingManager.Instance != null &&
+                IsAnyWherePlace == false &&
                 Physics.Raycast(headPosition, gazeDirection, out hitInfo, 30.0f, SpatialMappingManager.Instance.LayerMask))
             {
                 placementPosition = hitInfo.point;
@@ -115,9 +122,9 @@ namespace HoloToolkit.Unity.InputModule
                     ? GazeManager.Instance.GazeOrigin + GazeManager.Instance.GazeNormal * DefaultGazeDistance
                     : GazeManager.Instance.HitPosition;
 
-                placementRotation   = (GazeManager.Instance.HitObject == null
+                placementRotation = (GazeManager.Instance.HitObject == null
                     ? Quaternion.identity
-                    : Quaternion.LookRotation(GazeManager.Instance.HitInfo.normal) * Quaternion.Euler(90, 0, 0));
+                    : Quaternion.LookRotation(GazeManager.Instance.HitNormal) * Quaternion.Euler(90, 0, 0));
             }
             #endregion
 
@@ -136,10 +143,9 @@ namespace HoloToolkit.Unity.InputModule
             #endregion
 
             #region 位置調整
+            //var objectHeight = (PlaceParentOnTap) ? ParentGameObjectToPlace.transform.lossyScale.y / 2f : transform.lossyScale.y / 2f;
             var objectHeight = (PlaceParentOnTap) ? ParentGameObjectToPlace.transform.lossyScale.y / 2f : transform.lossyScale.y / 2f;
             var objectOffset = objectHeight * (placementRotation * Quaternion.Euler(0, -90, 0).eulerAngles.normalized);
-
-            Debug.Log(objectOffset.ToString("0.000"));
 
             switch (placeAlinement)
             {
@@ -166,7 +172,7 @@ namespace HoloToolkit.Unity.InputModule
         public virtual void OnInputClicked(InputClickedEventData eventData)
         {
             if (OneShotMode && IsPlaced) { return; }
-            
+
             // Tap Gestureで、Placing modeのトグルが切り替わる
             IsBeingPlaced = !IsBeingPlaced;
             HandlePlacement();
@@ -176,22 +182,22 @@ namespace HoloToolkit.Unity.InputModule
         {
             if (IsBeingPlaced)
             {
-                IsPlaced = true;
+                IsPlaced = false;
 
                 SetLayerRecursively(transform, useDefaultLayer: false);
                 InputManager.Instance.AddGlobalListener(gameObject);
-                
+
                 // Placing modeであれば、SpatialMappingのメッシュを表示する
                 if (AllowMeshVisualizationControl) { SpatialMappingManager.Instance.DrawVisualMeshes = true; }
 #if UNITY_WSA && !UNITY_EDITOR
 
-                //Removes existing world anchor if any exist.
-                WorldAnchorManager.Instance.RemoveAnchor(gameObject);
+                // Removes existing world anchor if any exist.
+                if(UseAsWorldAnchor) { WorldAnchorManager.Instance.RemoveAnchor(gameObject); }
 #endif
             }
             else
             {
-                IsPlaced = false;
+                IsPlaced = true;
 
                 SetLayerRecursively(transform, useDefaultLayer: true);
                 // タップ中にゲームオブジェクトが追加あるいは削除された場合、キャッシュを削除する
@@ -203,7 +209,7 @@ namespace HoloToolkit.Unity.InputModule
 #if UNITY_WSA && !UNITY_EDITOR
 
                 // Add world anchor when object placement is done.
-                WorldAnchorManager.Instance.AttachAnchor(gameObject, SavedAnchorFriendlyName);
+                if(UseAsWorldAnchor) { WorldAnchorManager.Instance.AttachAnchor(gameObject, SavedAnchorFriendlyName); }
 #endif
             }
         }
@@ -255,6 +261,5 @@ namespace HoloToolkit.Unity.InputModule
                 SetLayerRecursively(objectToSet.GetChild(i), useDefaultLayer);
             }
         }
-
     }
 }
